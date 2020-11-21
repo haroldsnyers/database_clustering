@@ -1,0 +1,38 @@
+
+version: '3'
+
+services:
+
+  cfgsvr1:
+    container_name: cfgsvr1
+    image: mongo
+    # start a config server, creating a replicaset named cfgrs (same replicaset for the 3 config servers)
+    command: mongod --configsvr --replSet cfgrs --port 27017 --dbpath /data/db
+    ports:
+      - 40001:27017
+    volumes:
+      - cfgsvr1:/data/db
+
+  cfgsvr2:
+    container_name: cfgsvr2
+    image: mongo
+    command: mongod --configsvr --replSet cfgrs --port 27017 --dbpath /data/db
+    ports:
+      - 40002:27017
+    volumes:
+      - cfgsvr2:/data/db
+
+  cfgsvr3:
+    container_name: cfgsvr3
+    image: mongo
+    command: mongod --configsvr --replSet cfgrs --port 27017 --dbpath /data/db
+    ports:
+      - 40003:27017
+    volumes:
+      - cfgsvr3:/data/db
+
+# need as such to not lose the configuration you applied to them
+volumes:
+  cfgsvr1: {}
+  cfgsvr2: {}
+  cfgsvr3: {}

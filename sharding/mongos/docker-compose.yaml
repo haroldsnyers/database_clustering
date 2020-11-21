@@ -1,0 +1,11 @@
+version: '3'
+
+services:
+
+  mongos:
+    container_name: mongos
+    image: mongo
+    # bind_ip to expose it to be able to connect to it from other machines
+    command: mongos --configdb cfgrs/${IP_ADDRESS}:40001,${IP_ADDRESS}:40002,${IP_ADDRESS}:40003 --bind_ip 0.0.0.0 --port 27017
+    ports:
+      - 60000:27017
