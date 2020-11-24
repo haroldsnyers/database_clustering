@@ -111,3 +111,91 @@ Add shard
 mongos> sh.addShard("shard2rs/<your_ip_address>:50004,<your_ip_address>:50005,<your_ip_address>:50006")
 mongos> sh.status()
 ```
+
+
+# Sharding with mongoDB collections
+
+First of, you will need to create collections in your databases. Indeed, we don't shard with dbs but with collections created. Thus to create a collection : 
+```
+db.createCollection("movies")
+db.createCollection("movies1")
+```
+
+Now if you try to get the shard distributions of one of those collections 
+```
+db.movies2.getShardDistribution()
+
+>>> Collection sharddemo.movies2 is not Sharded.
+```
+
+To enable sharding (not working)
+```
+sh.shardCollection("sharddemo.movies2", {"title": "hashed"})
+```
+
+In here, we have the collection we want to shard and then the shard key (to identify your data on the different shards) - multiple ways for the shard key (hashed)
+
+```
+OUTPUT
+{
+        "ok" : 0,
+        "errmsg" : "sharding not enabled for db sharddemo",
+        "code" : 20,
+        "codeName" : "IllegalOperation",
+        "operationTime" : Timestamp(1606230706, 5),
+        "$clusterTime" : {
+                "clusterTime" : Timestamp(1606230706, 5),
+                "signature" : {
+                        "hash" : BinData(0,"AAAAAAAAAAAAAAAAAAAAAAAAAAA="),
+                        "keyId" : NumberLong(0)
+                }
+        }
+}
+```
+The problem here occurs as we didn't enable sharding in the database -> sh.enableSharding("sharddemo")
+Now that we have enabled sharding in the database, we will be able to shard some collections. Sharded collection and non sharded collections can coexist in a database. 
+
+Now if we try to enable sharding for the collection again, it should work. Here is an example output: 
+
+```
+>>> OUTPUT
+{
+        "collectionsharded" : "sharddemo.movies2",
+        "collectionUUID" : UUID("03f5061b-3465-4ff2-a8e8-0017ac1d12f5"),
+        "ok" : 1,
+        "operationTime" : Timestamp(1606231146, 13),
+        "$clusterTime" : {
+                "clusterTime" : Timestamp(1606231146, 13),
+                "signature" : {
+                        "hash" : BinData(0,"AAAAAAAAAAAAAAAAAAAAAAAAAAA="),
+                        "keyId" : NumberLong(0)
+                }
+        }
+}
+```
+And now if we try to get the shard destribution of the collection and
+
+
+```
+db.movies2.getShardDistribution()
+OUTPUT
+>>> 
+
+Shard shard1rs at shard1rs/<ip_address>:50001,<ip_address>:50002,<ip_address>:50003
+ data : 0B docs : 0 chunks : 2
+ estimated data per chunk : 0B
+ estimated docs per chunk : 0
+
+Shard shard2rs at shard2rs/<ip_address>:50004,<ip_address>:50005,<ip_address>:50006
+ data : 0B docs : 0 chunks : 2
+ estimated data per chunk : 0B
+ estimated docs per chunk : 0
+
+Totals
+ data : 0B docs : 0 chunks : 4
+ Shard shard1rs contains 0% data, 0% docs in cluster, avg obj size on shard : 0B
+ Shard shard2rs contains 0% data, 0% docs in cluster, avg obj size on shard : 0B
+
+```
+
+db.movies.getShardDistribution() will output Collection sharddemo.movies is not Sharded. -> They can indeed coexist.
