@@ -24,9 +24,9 @@ rs.initiate(
     _id: "cfgrs",
     configsvr: true,
     members: [
-      { _id : 0, host : "<your_ip_address>:40001" },
-      { _id : 1, host : "<your_ip_address>:40002" },
-      { _id : 2, host : "<your_ip_address>:40003" }
+      { _id : 0, host : "<ip_address>:40001" },
+      { _id : 1, host : "<ip_address>:40002" },
+      { _id : 2, host : "<ip_address>:40003" }
     ]
   }
 )
@@ -43,16 +43,16 @@ docker-compose -f shard1/docker-compose.yaml up -d
 ```
 Initiate replica set
 ```
-mongo mongodb://<your_ip_address>:50001
+mongo mongodb://<ip_address>:50001
 ```
 ```
 rs.initiate(
   {
     _id: "shard1rs",
     members: [
-      { _id : 0, host : "<your_ip_address>:50001" },
-      { _id : 1, host : "<your_ip_address>:50002" },
-      { _id : 2, host : "<your_ip_address>:50003" }
+      { _id : 0, host : "<ip_address>:50001" },
+      { _id : 1, host : "<ip_address>:50002" },
+      { _id : 2, host : "<ip_address>:50003" }
     ]
   }
 )
@@ -62,7 +62,7 @@ rs.status()
 
 ### Mongos Router
 Start mongos query router
-Before being able to run this command, you will need to change your ip address in the .env file in the sharding folder. example : IP_ADDRESS=192.168.1.12
+Before being able to run this command, you will need to change your ip address in the .env file in the sharding folder. example : IP_ADDRESS=<ip_address>
 ```
 docker-compose -f mongos/docker-compose.yaml up -d
 ```
@@ -70,11 +70,11 @@ docker-compose -f mongos/docker-compose.yaml up -d
 ### Add shard to the cluster
 Connect to mongos
 ```
-mongo mongodb://<your_ip_address>:60000
+mongo mongodb://<ip_address>:60000
 ```
 Add shard
 ```
-mongos> sh.addShard("shard1rs/<your_ip_address>:50001,<your_ip_address>:50002,<your_ip_address>:50003")
+mongos> sh.addShard("shard1rs/<ip_address>:50001,<ip_address>:50002,<ip_address>:50003")
 mongos> sh.status()
 ```
 ## Adding another shard
@@ -85,16 +85,16 @@ docker-compose -f shard2/docker-compose.yaml up -d
 ```
 Initiate replica set
 ```
-mongo mongodb://<your_ip_address>:50004
+mongo mongodb://<ip_address>:50004
 ```
 ```
 rs.initiate(
   {
     _id: "shard2rs",
     members: [
-      { _id : 0, host : "<your_ip_address>:50004" },
-      { _id : 1, host : "<your_ip_address>:50005" },
-      { _id : 2, host : "<your_ip_address>:50006" }
+      { _id : 0, host : "<ip_address>:50004" },
+      { _id : 1, host : "<ip_address>:50005" },
+      { _id : 2, host : "<ip_address>:50006" }
     ]
   }
 )
@@ -104,11 +104,11 @@ rs.status()
 ### Add shard to the cluster
 Connect to mongos
 ```
-mongo mongodb://<your_ip_address>:60000
+mongo mongodb://<ip_address>:60000
 ```
 Add shard
 ```
-mongos> sh.addShard("shard2rs/<your_ip_address>:50004,<your_ip_address>:50005,<your_ip_address>:50006")
+mongos> sh.addShard("shard2rs/<ip_address>:50004,<ip_address>:50005,<ip_address>:50006")
 mongos> sh.status()
 ```
 
@@ -173,7 +173,7 @@ Now if we try to enable sharding for the collection again, it should work. Here 
         }
 }
 ```
-And now if we try to get the shard destribution of the collection and
+And now if we try to get the shard distribution of the collection and
 
 
 ```
