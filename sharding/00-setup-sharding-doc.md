@@ -118,19 +118,19 @@ mongos> sh.status()
 First of, you will need to create collections in your databases. Indeed, we don't shard with dbs but with collections created. Thus to create a collection : 
 ```
 db.createCollection("movies")
-db.createCollection("movies1")
+db.createCollection("books")
 ```
 
 Now if you try to get the shard distributions of one of those collections 
 ```
-db.movies2.getShardDistribution()
+db.movies.getShardDistribution()
 
->>> Collection sharddemo.movies2 is not Sharded.
+>>> Collection sharddemo.movies is not Sharded.
 ```
 
 To enable sharding (not working)
 ```
-sh.shardCollection("sharddemo.movies2", {"title": "hashed"})
+sh.shardCollection("sharddemo.movies", {"title": "hashed"})
 ```
 
 In here, we have the collection we want to shard and then the shard key (to identify your data on the different shards) - multiple ways for the shard key (hashed)
@@ -160,7 +160,7 @@ Now if we try to enable sharding for the collection again, it should work. Here 
 ```
 >>> OUTPUT
 {
-        "collectionsharded" : "sharddemo.movies2",
+        "collectionsharded" : "sharddemo.movies",
         "collectionUUID" : UUID("03f5061b-3465-4ff2-a8e8-0017ac1d12f5"),
         "ok" : 1,
         "operationTime" : Timestamp(1606231146, 13),
@@ -177,7 +177,7 @@ And now if we try to get the shard distribution of the collection and
 
 
 ```
-db.movies2.getShardDistribution()
+db.movies.getShardDistribution()
 OUTPUT
 >>> 
 
@@ -198,4 +198,39 @@ Totals
 
 ```
 
-db.movies.getShardDistribution() will output Collection sharddemo.movies is not Sharded. -> They can indeed coexist.
+db.books.getShardDistribution() will output Collection sharddemo.books is not Sharded. -> They can indeed coexist.
+
+## TEST to populate databases
+A simple test to populate the database can be found in the code at pymongo/mongodb.py. If the database and collections don't exist, these will be created. If you want one of the collections to be sharded, you will need to enable sharding manually with the instructions given at Sharding with mongoDB collections
+
+To execute the different cruds method, simply run the whole python file. This will insert multiple elements in the database. Execute a query to find a certain element by its title in the collection and finally delete an element by its title in the given collection.
+
+### test on the two types of collections, sharded and normal.
+
+For the sharded collections, here are some of the experiments we have done. 
+
+- if the primary shard is down (simply stop the docker container for one of the shard systems), retrieving the data will not be possible.
+- if one secondary shard is down,, retrieving the data will be possible. However, if both of the secondary charts are down, the sharded collection will not be accessible. 
+
+For the normal collection: 
+
+Before explaining what we have done, we first have to look what the primary shard is of our database. In our case, the database sharddemo has the following as configurations.
+
+´´´
+{ 
+  id: "shardddemo"
+  primary: "shard2rs"
+  partitioned: true
+}
+´´´
+
+As we can see, the primary instance of our database is in the second shard. Now here is what we have discovered:
+- if the shard1 instance is partially down, completely down or completely up, it doesn't matter for the collection.
+- if the shard2 instance has one of the secondary down, the collection is still accessible. However if the primary is down, or all secondary are down, the database will not be accessible.
+
+
+One more thing, if the configuration servers are down, the database is still accessible. 
+
+TODO
+- find pymongo method to modify an element in the database
+- find out how the shutdown of the config servers has an impact on the rest of the system. 
